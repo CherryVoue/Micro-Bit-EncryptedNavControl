@@ -1,0 +1,42 @@
+# wirelessReceiverEncrypted.py
+
+from cyberbot import *
+import radio
+
+radio.on()
+radio.config(channel=3,length=64)
+
+sleep(1000)
+
+def ascii_shift(key, text):
+    result = ""
+    for letter in text:
+        ascii = ( ord(letter) + key - 32 ) % 94 + 32
+        result = result + chr(ascii)
+    return result
+ 
+''' Script starts from here... '''
+ 
+key = -5
+
+print("Ready...\n")
+
+while True:
+    packet = radio.receive()
+    if packet is not None:
+        print("Encrypted: ", packet)
+        packet = ascii_shift(key, packet)
+        print("Decrypted: ", packet)
+
+        dictionary = eval(packet)
+
+        vL = dictionary['vL']
+        vR = dictionary['vR']
+        ms = dictionary['ms']
+        
+        bot(18).servo_speed(vL)
+        bot(19).servo_speed(-vR)
+        sleep(ms)
+        bot(18).servo_speed(None)
+        bot(19).servo_speed(None)
+
